@@ -6,6 +6,7 @@ needed_rpm=null_rpm_link
 needed_rpm_name=null_rpm_name
 needed_package_name=null_package_name
 api_token=$1
+stage=$2 # Defaults to release. Enter --beta or --test as appropriate
 
 #rpm file variables
 centos_7_rpm="SignalFx-RPMs-centos-7-release-1.0-0.noarch.rpm"
@@ -29,6 +30,15 @@ if [ ! -f /etc/redhat-release ]
    else
    	  #older versions of RPM based Linux that don't have version in PRETTY_NAME format
       hostOS_2=$(head -c 16 /etc/redhat-release)
+fi
+
+#determine the stage (release, beta or test) of collectd to be installed
+if [ "$stage" == "--beta" ]; then
+    stage="beta"
+elif [ "$stage" == "--test" ]; then
+    stage="test"
+else
+    stage="release"
 fi
 
 #determine if the script is being run by root or not
@@ -232,7 +242,7 @@ install_debian_collectd_procedure() #install function for debian collectd
 
     #Adding signalfx repo
     printf "Getting SignalFx collectd package\n"
-    $sudo add-apt-repository -y ppa:signalfx/collectd-release
+    $sudo add-apt-repository -y ppa:signalfx/collectd-$stage
 
     #Updating apt-get to reference the signalfx repo to install collectd
     printf "Updating apt-get to reference new SignalFx package\n"
