@@ -8,19 +8,28 @@ needed_package_name=null_package_name
 api_token=$1
 stage=$2 # Defaults to release. Enter --beta or --test as appropriate
 
+#determine the stage (release, beta or test) of collectd to be installed
+if [ "$stage" == "--beta" ]; then
+    stage="beta"
+elif [ "$stage" == "--test" ]; then
+    stage="test"
+else
+    stage="release"
+fi
+
 #rpm file variables
-centos_7_rpm="SignalFx-RPMs-centos-7-release-1.0-0.noarch.rpm"
-centos_6_rpm="SignalFx-RPMs-centos-6-release-1.0-0.noarch.rpm"
-centos_5_rpm="SignalFx-RPMs-centos-5-release-1.0-0.noarch.rpm"
-aws_linux_2014_09_rpm="SignalFx-RPMs-AWS_EC2_Linux_2014_09-release-1.0-0.noarch.rpm"
-aws_linux_2015_03_rpm="SignalFx-RPMs-AWS_EC2_Linux_2015_03-release-1.0-0.noarch.rpm"
+centos_7_rpm="SignalFx-RPMs-centos-7-${stage}-1.0-0.noarch.rpm"
+centos_6_rpm="SignalFx-RPMs-centos-6-${stage}-1.0-0.noarch.rpm"
+centos_5_rpm="SignalFx-RPMs-centos-5-${stage}-1.0-0.noarch.rpm"
+aws_linux_2014_09_rpm="SignalFx-RPMs-AWS_EC2_Linux_2014_09-${stage}-1.0-0.noarch.rpm"
+aws_linux_2015_03_rpm="SignalFx-RPMs-AWS_EC2_Linux_2015_03-${stage}-1.0-0.noarch.rpm"
 
 #download location variables
-centos_7="https://dl.signalfx.com/rpms/SignalFx-rpms/release/${centos_7_rpm}"
-centos_6="https://dl.signalfx.com/rpms/SignalFx-rpms/release/${centos_6_rpm}"
-centos_5="https://s3.amazonaws.com/public-downloads--signalfuse-com/rpms/SignalFx-rpms/release/${centos_5_rpm}"
-aws_linux_2014_09="https://dl.signalfx.com/rpms/SignalFx-rpms/release/${aws_linux_2014_09_rpm}"
-aws_linux_2015_03="https://dl.signalfx.com/rpms/SignalFx-rpms/release/${aws_linux_2015_03_rpm}"
+centos_7="https://dl.signalfx.com/rpms/SignalFx-rpms/${stage}/${centos_7_rpm}"
+centos_6="https://dl.signalfx.com/rpms/SignalFx-rpms/${stage}/${centos_6_rpm}"
+centos_5="https://s3.amazonaws.com/public-downloads--signalfuse-com/rpms/SignalFx-rpms/${stage}/${centos_5_rpm}"
+aws_linux_2014_09="https://dl.signalfx.com/rpms/SignalFx-rpms/${stage}/${aws_linux_2014_09_rpm}"
+aws_linux_2015_03="https://dl.signalfx.com/rpms/SignalFx-rpms/${stage}/${aws_linux_2015_03_rpm}"
 
 #determine hostOS for newer versions of Linux
 hostOS=$(cat /etc/*-release | grep PRETTY_NAME | grep -o '".*"' | sed 's/"//g' | sed -e 's/([^()]*)//g' | sed -e 's/[[:space:]]*$//')
@@ -30,15 +39,6 @@ if [ ! -f /etc/redhat-release ]
    else
    	  #older versions of RPM based Linux that don't have version in PRETTY_NAME format
       hostOS_2=$(head -c 16 /etc/redhat-release)
-fi
-
-#determine the stage (release, beta or test) of collectd to be installed
-if [ "$stage" == "--beta" ]; then
-    stage="beta"
-elif [ "$stage" == "--test" ]; then
-    stage="test"
-else
-    stage="release"
 fi
 
 #determine if the script is being run by root or not
